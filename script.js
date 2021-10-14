@@ -20,6 +20,7 @@
 const express = require('express')
 const fs = require('fs')
 const cors = require('cors')
+const {nanoid} = require('nanoid')
 
 const server = express()
 server.use(cors())
@@ -32,9 +33,10 @@ server.get('/api/users', (req, res) => {
     const users = getAllUsers()
     res.json(users)
 })
+
 server.get('/api/users/:id', (req, res) => {
     const users = getAllUsers()
-    const selectedUser = users.find(el => el.id === +req.params.id)
+    const selectedUser = users.find(el => el.id === +req.params.id) //req.params.id - айди который записывается после :
     if (selectedUser) {
         res.json(selectedUser)
     } else {
@@ -49,16 +51,23 @@ server.delete('/api/users/:id', (req, res) => {
     fs.writeFileSync('users.json', JSON.stringify(filteredUsers, null, 2))
     res.json(deletedUser)
 })
-server.put('/api/users/:id',(req,res) => {
-    const updatedUsers =  getAllUsers().map(el => el.id ===  +req.params.id ? {...el,...req.body} : el )
-    fs.writeFileSync('users.json',JSON.stringify(updatedUsers,null,2))
+
+
+server.put('/api/users/:id', (req, res) => {
+    const updatedUsers = getAllUsers().map(el => el.id === +req.params.id ? {...el, ...req.body} : el)
+    fs.writeFileSync('users.json', JSON.stringify(updatedUsers, null, 2))
     res.json(updatedUsers)
 })
 
-server.post('/api/users/:id',(req,res) => {
-    console.log(req.body)
-    const addUser =  [...getAllUsers(), req.body]
-    fs.writeFileSync('users.json',JSON.stringify(addUser,null,2))
+
+server.post('/api/users/:id', (req, res) => {
+    // req.body.id = nanoid()
+    const newUser = {
+        'id': nanoid(),
+        ...req.body
+    }
+    const addUser = [...getAllUsers(), newUser]
+    fs.writeFileSync('users.json', JSON.stringify(addUser, null, 2))
     res.json(addUser)
 })
 
